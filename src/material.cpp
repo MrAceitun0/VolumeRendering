@@ -96,16 +96,22 @@ void VolumeMaterial::setUniforms(Camera* camera, Matrix44 model)
 	//upload node uniforms
 	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	shader->setUniform("u_camera_position", camera->eye);
+
+	//Get camera local position
+
+
 	shader->setUniform("u_model", model);
 
 	shader->setUniform("u_color", color);
 
 	if (texture)
+	{
 		shader->setUniform("u_texture", texture);
+	}
 
 	//Extra uniforms
 	shader->setUniform("u_quality", 10.0f);
-	shader->setUniform("u_brightness", 0.5f);
+	shader->setUniform("u_brightness", 1.5f);
 }
 
 void VolumeMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
@@ -114,7 +120,7 @@ void VolumeMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
 	{
 		//enable shader
 		shader->enable();
-
+		shader->setUniform("u_local_camera_position", vec3(camera->eye.x - model.getTranslation().x, camera->eye.y - model.getTranslation().y, camera->eye.z - model.getTranslation().z));
 		//upload uniforms
 		setUniforms(camera, model);
 
