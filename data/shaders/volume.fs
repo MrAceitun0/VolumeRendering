@@ -15,24 +15,20 @@ uniform vec4 u_color;
 
 void main()
 {
-	//Ray Set-up
-	/*
-		compute(u_local_camera_position);
-		ray = u_local_camera_position - v_world_position;
-		initial_sample = v_position;
-		n_steps = 100; //Quality ??? 
-		step = 0.1;
-		color_acc = vec4(0,0,0,0)
-
-		for(int i = 0; i < n_steps; i++)
-		{
-			if(color_acc.a < 1 && inside volume) 
-			{
-				color_i.rgb = color_i.rgb * color_i.a;
-				color_acc = step * color_i * (1 - color_acc.a) + color_acc;
-			}
-		}
-	*/
+	//Ray	
+	vec3 ray = u_local_camera_position - v_position; ???
+	vec3 initial_sample = v_position;
+	step = u_quality;
+	color_acc = vec4(0,0,0,0); ???
+	color_i = vec4(????); //from texture
+		
+	for(int i = 0; i < 4000; i++)
+	{
+		color_i.rgb = color_i.rgb * color_i.a;
+		color_acc = step * color_i * (1 - color_acc.a) + color_acc;
+		//if(color_acc.a >= 1 || outside volume) break;
+	}
+	
 
 	//Brightness Options
 	if(1.0 < u_color.x * u_brightness)
@@ -50,5 +46,8 @@ void main()
 	else
 		u_color.z = u_color.z * u_brightness;
 
-	gl_FragColor = color_acc;
+	gl_FragColor = u_color;
+	
+	//For Volume Rendering
+	//gl_FragColor = color_acc;
 }
