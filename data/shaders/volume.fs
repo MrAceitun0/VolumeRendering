@@ -6,7 +6,7 @@ uniform sampler3D u_texture;
 
 //Camera position
 uniform vec3 u_camera_position;
-uniform vec3 u_local_camera_position;	//You can use this now for the algorithm, in the assigment you will be responsible to compute it
+uniform vec3 u_local_camera_position;   //You can use this now for the algorithm, in the assigment you will be responsible to compute it
 
 //Optional to use
 uniform float u_quality;
@@ -15,48 +15,36 @@ uniform vec4 u_color;
 
 void main()
 {
-	//Ray
-	vec3 ray = u_local_camera_position - v_position;
-	vec3 current_sample = (v_position + 1) / 2;
-	vec3 dir = normalize(ray);
-	float step = u_quality;
-	vec3 step_vector = dir * step;
+    vec3 init_pos = v_position;
 
-	vec4 color_acc = vec4(0,0,0,0); 
+    //Ray
+    vec3 ray = v_position - u_local_camera_position;
+    vec3 dir = normalize(ray);
+    vec3 step_vector = dir * u_quality;
 
-	for(int i = 0; i < 4000; i++)
-	{
-		float v = texture3D(u_texture, current_sample);
-		vec4 color_i = vec4(v.x, v.x, v.x, v.x);
+    //color
+    vec4 color_acc = vec4(0.0, 0.0, 0.0, 0.0);
+    vec4 color_i = vec4(0.0, 0.0, 0.0, 0.0); 
 
-		color_i.rgb = color_i.rgb * color_i.a;
-		color_acc = step * color_i * (1.0 - color_acc.a) + color_acc;
+    while(1)
+    {
+        init_pos += step_vector;
+        vec3 init_pos_norm = (init_pos + 1) / 2.0;
 
-		if(color_acc.a >= 1.0 || texture3D(u_texture, current_sample) == 0)
-			break;	
+        if (init_pos.x > 1 || init_pos.y > 1 || init_pos.z > 1 || init_pos.x < -1 || init_pos.y < -1 || init_pos.z < -1 )
+        { 
+            break;
+        }
 
-		current_sample += step_vector;
-	}
-	
-	//Brightness Options
-	/*
-	if(1.0 < color_acc.x * u_brightness)
-		color_acc.x = 1.0;
-	else
-		color_acc.x = color_acc.x * u_brightness;
+        color_i = texture3D(u_texture, init_pos_norm);
+        color_i = vec4(u_color.xyz, color_i.x);
+        color_i.rgb = color_i.rgb * color_i.a;
+        color_acc += length(step_vector) * color_i * (1.0 - color_acc.a + u_brightness / 100);
 
-	if(1.0< color_acc.y * u_brightness)
-		color_acc.y = 1.0;
-	else
-		color_acc.y = color_acc.y * u_brightness;
+        if(color_acc.a > 1.0)
+            break;
+    }
 
-	if(1.0 < color_acc.z * u_brightness)
-		color_acc.z = 1.0;
-	else
-		color_acc.z = color_acc.z * u_brightness;
-	*/
-	//gl_FragColor = u_color;
-	
-	//For Volume Rendering
-	gl_FragColor = color_acc;
+    //For Volume Rendering
+    gl_FragColor = color_acc;
 }
