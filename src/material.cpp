@@ -25,6 +25,8 @@ void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 
 	if (texture)
 		shader->setUniform("u_texture", texture);
+
+	shader->setUniform("u_quality", 1.0f);
 }
 
 void StandardMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
@@ -80,10 +82,15 @@ void WireframeMaterial::render(Mesh* mesh, Matrix44 model, Camera * camera)
 	}
 }
 
+
 VolumeMaterial::VolumeMaterial()
 {
-	color = vec4(1.f, 0, 0, 1.f);
+	color = vec4(1.f, 1.f, 1.f, 1.f);
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volume.fs");
+	volume = new Volume(32, 32, 32);
+	texture = new Texture();
+	volume->fillNoise(2, 4, 1);
+	texture->create3D(volume->width, volume->height, volume->depth, GL_RED, GL_UNSIGNED_BYTE, false, volume->data, GL_RED);
 }
 
 VolumeMaterial::~VolumeMaterial()
@@ -96,22 +103,23 @@ void VolumeMaterial::setUniforms(Camera* camera, Matrix44 model)
 	//upload node uniforms
 	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	shader->setUniform("u_camera_position", camera->eye);
-
-	//Get camera local position
-
-
 	shader->setUniform("u_model", model);
 
+	model.inverse();
+
+	Vector3 local_camera_position = vec3((model * vec4(camera->eye, 1.0)).x, (model * vec4(camera->eye, 1.0)).y, (model * vec4(camera->eye, 1.0)).z) * (1 / (model * vec4(camera->eye, 1.0)).w);
+
+	shader->setUniform("u_local_camera_position", local_camera_position);
 	shader->setUniform("u_color", color);
+
+	//Extra uniforms
+	shader->setUniform("u_quality", 0.01f);
+	shader->setUniform("u_brightness", brightness);
 
 	if (texture)
 	{
 		shader->setUniform("u_texture", texture);
 	}
-
-	//Extra uniforms
-	shader->setUniform("u_quality", 10.0f);
-	shader->setUniform("u_brightness", 1.5f);
 }
 
 void VolumeMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
@@ -120,7 +128,7 @@ void VolumeMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
 	{
 		//enable shader
 		shader->enable();
-		shader->setUniform("u_local_camera_position", vec3(camera->eye.x - model.getTranslation().x, camera->eye.y - model.getTranslation().y, camera->eye.z - model.getTranslation().z));
+
 		//upload uniforms
 		setUniforms(camera, model);
 
@@ -135,4 +143,5 @@ void VolumeMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
 void VolumeMaterial::renderInMenu()
 {
 	ImGui::ColorEdit3("Color", (float*)&color); // Edit 3 floats representing a color
+	ImGui::SliderFloat("Brightness", (float*)&brightness, 0.0, 100.0);
 }

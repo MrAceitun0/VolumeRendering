@@ -37,52 +37,30 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 
 	// Create camera
 	camera = new Camera();
-	camera->lookAt(Vector3(15.f, 15.0f, 25.f), Vector3(0.f, 0.0f, 0.f), Vector3(0.f, 1.f, 0.f));
-	camera->setPerspective(45.f,window_width/(float)window_height,0.1f,10000.f);
+	camera->lookAt(Vector3(100.f, 100.0f, 200.f), Vector3(0.f, 20.0f, 0.f), Vector3(0.f, 1.f, 0.f));
+	camera->setPerspective(45.f, window_width / (float)window_height, 0.1f, 10000.f);
 
 	// Create scene node 
 	SceneNode * node = new SceneNode("Rendered node");
 	root.push_back(node);
 
 	// Set mesh and manipulate model matrix
-	node->mesh = Mesh::Get("data/meshes/box.ASE.mbin");
-	node->model.setScale(0.1, 0.1, 0.1);
+	node->mesh = new Mesh();
+	node->mesh->createCube();
 
 	// Create node material
-	StandardMaterial * material = new StandardMaterial();
+	VolumeMaterial * material = new VolumeMaterial();
 	node->material = material;
+	node->model.setScale(material->volume->width, material->volume->height, material->volume->depth);
 
 	// Manipulate material
-	material->color = vec4(0.5, 0.0, 0.0, 1.0);
+	material->color = vec4(1.0, 0.0, 0.0, 1.0);
+	material->brightness = 0.5;
+
 	/*
 	material->texture = Texture::Get("data/textures/texture.tga");
 	material->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	*/
-
-	
-	
-	// Create scene node 
-	SceneNode * new_node = new SceneNode("Rendered new node");
-	root.push_back(new_node);
-
-	// Set mesh and manipulate model matrix
-	new_node->mesh = Mesh::Get("data/meshes/box.ASE.mbin");
-	new_node->model.setScale(0.1, 0.1, 0.1);
-	new_node->model.translate(200, 0, 0);
-
-	Volume* volume = new Volume(32, 32, 32);
-	volume->fillNoise(2, 4, 1);
-
-	Texture* texture = new Texture();
-	texture->create3D(32, 32, GL_RED, GL_UNSIGNED_BYTE, false, volume);
-
-	// Create node material
-	VolumeMaterial * new_material = new VolumeMaterial();
-	new_node->material = new_material;
-
-	// Manipulate material
-	new_material->color = vec4(0.5, 0.0, 0.0, 1.0);
-	new_material->texture = texture;
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse

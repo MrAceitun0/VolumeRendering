@@ -6,13 +6,16 @@
 #include "camera.h"
 #include "mesh.h"
 #include "extra/hdre.h"
+#include "volume.h"
 
 class Material {
 public:
 
 	Shader* shader = NULL;
 	Texture* texture = NULL;
+	Volume* volume = NULL;
 	vec4 color;
+	float brightness;
 
 	virtual void setUniforms(Camera* camera, Matrix44 model) = 0;
 	virtual void render(Mesh* mesh, Matrix44 model, Camera * camera) = 0;
