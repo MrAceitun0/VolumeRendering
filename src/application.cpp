@@ -54,7 +54,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	// Manipulate material
 	material->color = vec4(1.0, 1.0, 1.0, 1.0);
 	material->brightness = 0.5;
-
+	
 	root.push_back(node);
 
 	//hide the cursor
