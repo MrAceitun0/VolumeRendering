@@ -16,6 +16,8 @@ public:
 	Volume* volume = NULL;
 	vec4 color;
 	float brightness;
+	float quality = 0.01;
+	int index;
 
 	virtual void setUniforms(Camera* camera, Matrix44 model) = 0;
 	virtual void render(Mesh* mesh, Matrix44 model, Camera * camera) = 0;

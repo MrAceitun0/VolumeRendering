@@ -51,16 +51,16 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	// Create node material
 	VolumeMaterial * material = new VolumeMaterial();
 	node->material = material;
-	node->model.setScale(material->volume->width, material->volume->height, material->volume->depth);
+	
+	Volume* volume = new Volume(32,32, 32);
+	volume->fillNoise(4,1,2);
+	node->material->volume = volume;
+
+	node->model.setScale(node->material->volume->width, node->material->volume->height, node->material->volume->depth);
 
 	// Manipulate material
-	material->color = vec4(1.0, 0.0, 0.0, 1.0);
+	material->color = vec4(1.0, 1.0, 1.0, 1.0);
 	material->brightness = 0.5;
-
-	/*
-	material->texture = Texture::Get("data/textures/texture.tga");
-	material->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	*/
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
@@ -81,9 +81,11 @@ void Application::render(void)
 	//set flags
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
+	//Camera inside volume NOT WORKING
+	//glCullFace(GL_FRONT_AND_BACK);
 
 	for (int i = 0; i < root.size(); i++) {
+
 		root[i]->render(camera);
 
 		if(render_wireframe)
@@ -121,6 +123,13 @@ void Application::update(double seconds_elapsed)
 	if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) camera->move(Vector3(-1.0f, 0.0f, 0.0f) * speed);
 	if (Input::isKeyPressed(SDL_SCANCODE_SPACE)) camera->moveGlobal(Vector3(0.0f, -1.0f, 0.0f) * speed);
 	if (Input::isKeyPressed(SDL_SCANCODE_LCTRL)) camera->moveGlobal(Vector3(0.0f,  1.0f, 0.0f) * speed);
+
+	//Change volumes
+	
+	if (Input::isKeyPressed(SDL_SCANCODE_1)) { volume_index = 0; std::cout << "0" << std::endl; }
+	if (Input::isKeyPressed(SDL_SCANCODE_2)) { volume_index = 1; std::cout << "1" << std::endl; }
+	if (Input::isKeyPressed(SDL_SCANCODE_3)) { volume_index = 2; std::cout << "2" << std::endl; }
+	
 
 	//to navigate with the mouse fixed in the middle
 	if (mouse_locked)
