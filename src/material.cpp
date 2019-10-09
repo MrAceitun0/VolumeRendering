@@ -88,10 +88,10 @@ VolumeMaterial::VolumeMaterial()
 	color = vec4(1.f, 1.f, 1.f, 1.f);
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volume.fs");
 	
-	volume = new Volume(32, 32, 32);
+	volume = new Volume();
 
 	texture = new Texture();
-	volume->fillNoise(2, 4, 1);
+	volume->loadPVM("data/volumes/abdomen.pvm");
 	texture->create3D(volume->width, volume->height, volume->depth, GL_RED, GL_UNSIGNED_BYTE, false, volume->data, GL_RED);
 }
 

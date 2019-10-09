@@ -54,6 +54,9 @@ public:
 
 	//Change volumes
 	int volume_index = 0; 
+	Volume* v1;
+	Volume* v2;
+	Volume* v3;
 };
 
 

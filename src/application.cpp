@@ -42,7 +42,6 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 
 	// Create scene node 
 	SceneNode * node = new SceneNode("Rendered node");
-	root.push_back(node);
 
 	// Set mesh and manipulate model matrix
 	node->mesh = new Mesh();
@@ -51,19 +50,23 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	// Create node material
 	VolumeMaterial * material = new VolumeMaterial();
 	node->material = material;
-	
-	Volume* volume = new Volume(32,32, 32);
-	volume->fillNoise(4,1,2);
-	node->material->volume = volume;
-
-	node->model.setScale(node->material->volume->width, node->material->volume->height, node->material->volume->depth);
 
 	// Manipulate material
 	material->color = vec4(1.0, 1.0, 1.0, 1.0);
 	material->brightness = 0.5;
 
+	root.push_back(node);
+
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
+
+	//Volumes
+	v1 = new Volume();
+	v1->loadPVM("data/volumes/abdomen.pvm");
+	v2 = new Volume();
+	v2->loadPVM("data/volumes/orange.pvm");
+	v3 = new Volume();
+	v3->fillNoise(8, 8, 8);
 }
 
 //what to do when the image has to be draw
@@ -106,6 +109,19 @@ void Application::update(double seconds_elapsed)
 	float angle = (float)seconds_elapsed * 10.0f*DEG2RAD;
 	for (int i = 0; i < root.size(); i++) {
 		root[i]->model.rotate(angle, Vector3(0,1,0));
+
+		if (Input::isKeyPressed(SDL_SCANCODE_1)) { 
+			root[i]->material->volume = v1; 
+			root[i]->material->texture->create3D(v1->width, v1->height, v1->depth, GL_RED, GL_UNSIGNED_BYTE, false, v1->data, GL_RED);
+		}
+		else if (Input::isKeyPressed(SDL_SCANCODE_2)) { 
+			root[i]->material->volume = v2; 
+			root[i]->material->texture->create3D(v2->width, v2->height, v2->depth, GL_RED, GL_UNSIGNED_BYTE, false, v2->data, GL_RED);
+		}
+		else if (Input::isKeyPressed(SDL_SCANCODE_3)) { 
+			root[i]->material->volume->fillNoise(8,8,8);
+			root[i]->material->texture->create3D(root[i]->material->volume->width, root[i]->material->volume->height, root[i]->material->volume->depth, GL_RED, GL_UNSIGNED_BYTE, false, root[i]->material->volume->data, GL_RED);
+		}
 	}
 
 	//mouse input to rotate the cam
@@ -123,12 +139,6 @@ void Application::update(double seconds_elapsed)
 	if (Input::isKeyPressed(SDL_SCANCODE_D) || Input::isKeyPressed(SDL_SCANCODE_RIGHT)) camera->move(Vector3(-1.0f, 0.0f, 0.0f) * speed);
 	if (Input::isKeyPressed(SDL_SCANCODE_SPACE)) camera->moveGlobal(Vector3(0.0f, -1.0f, 0.0f) * speed);
 	if (Input::isKeyPressed(SDL_SCANCODE_LCTRL)) camera->moveGlobal(Vector3(0.0f,  1.0f, 0.0f) * speed);
-
-	//Change volumes
-	
-	if (Input::isKeyPressed(SDL_SCANCODE_1)) { volume_index = 0; std::cout << "0" << std::endl; }
-	if (Input::isKeyPressed(SDL_SCANCODE_2)) { volume_index = 1; std::cout << "1" << std::endl; }
-	if (Input::isKeyPressed(SDL_SCANCODE_3)) { volume_index = 2; std::cout << "2" << std::endl; }
 	
 
 	//to navigate with the mouse fixed in the middle
