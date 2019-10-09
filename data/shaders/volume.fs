@@ -33,7 +33,7 @@ void main()
         color_i.rgb = color_i.rgb * color_i.a;
         color_acc = length(step_vector) * color_i * (1.0 - color_acc.a) + color_acc;
 
-        if(color_acc.a > 1.0)
+        if(color_acc.a > 0.99)
             break;
 
         if (current_sample.x > 1 || current_sample.y > 1 || current_sample.z > 1 || current_sample.x < -1 || current_sample.y < -1 || current_sample.z < -1 ) 
